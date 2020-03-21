@@ -66,20 +66,12 @@ here_browse <- function(category, sf, key = here_key, raw = FALSE){
   # Get sf params
   centroid <- st_centroid(sf)
   
-  ## DONT NEED TO TEST FOR WITHINNESS BECAUSE API LIMITS TO 100 RESPONSES Regardless
-  # bbox <- st_bbox(sf)
-  # # Test that whole bbox captured in radius
-  # # Assumes Lat/Lon (Must not be greater than 250km) 250km = 820210ft
-  # buffer <- coord_buffer(centroid, buffer = 820210, 102696) # St Louis Only...
-  # within <- st_within(sf, buffer, sparse = FALSE)
-  # if(!within[1,1]){stop('Provided SF object too large to use, try a smaller area.')}
-  
   # Make API Call to HERE
   url <- 'https://browse.search.hereapi.com/v1/browse'
   httr::GET(url,
             query = list(
               at = paste(unlist(centroid)[2],unlist(centroid)[1], sep = ','),
-              categories = paste(categories, collapse = ','),
+              categories = paste(category, collapse = ','), # to accept mulitple categories
               apiKey = key,
               limit = 100
             )
@@ -92,22 +84,17 @@ here_browse <- function(category, sf, key = here_key, raw = FALSE){
   }
   
   # Parse the Data
-  parsed <- sapply(response$items, function(x){
+  parsed <- lapply(response$items, function(x){
     data.frame(stringsAsFactors = FALSE,
                title = x$title,
                uid = x$id,
                position = x$position,
                category = category
-               #categories = list(x$categories)
                )
   })
   
   # Bind into one Data.frame
   parsed <- dplyr::bind_rows(parsed)
-  
-  # # Coalesce for Single Category Edge Case
-  # parsed$categories.id <- dplyr::coalesce(parsed$id, parsed$categories.id)
-  # parsed$id <- NULL
   
   return(parsed)
 }
@@ -121,12 +108,15 @@ here_browse <- function(category, sf, key = here_key, raw = FALSE){
 # @param raw Logical, Should the raw API response be returned?
 #
 here_discover <- function(search, bbox, key = here_key, raw = FALSE){
+  
+  # Make API Call to HERE
   url <- 'https://discover.search.hereapi.com/v1/discover'
   httr::GET(url,
             query = list(
               `in`=paste0('bbox:',bbox_to_string(bbox)),
               q=search,
-              apiKey=key
+              apiKey=key,
+              limit=100
             )
   ) %>%
   content() ->
@@ -136,4 +126,23 @@ here_discover <- function(search, bbox, key = here_key, raw = FALSE){
     return(response)
   }
 
+  # Parse the Data
+  parsed <- lapply(response$items, function(x){
+    data.frame(stringsAsFactors = FALSE,
+               title = x$title,
+               uid = x$id,
+               position = x$position,
+               category = search
+    )
+  })
+  
+  # Bind into one Data.frame
+  parsed <- dplyr::bind_rows(parsed)
+  
+  return(parsed)
 }
+
+
+# Testing
+#b = here_browse('100-1100', stl)
+#d = here_discover('Coffee', st_bbox(stl))
