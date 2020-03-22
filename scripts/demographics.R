@@ -16,6 +16,7 @@ poverty <- get_acs(table = "B17001", geography = "tract", state = 29, county = c
     poverty_moe = B17001_002M
   ) %>%
   mutate(poverty_rate = poverty/total*1000) %>%
-  select(GEOID, poverty_rate)
+  select(GEOID, poverty_rate) %>%
+  st_transform(poverty, crs = 4326)
 
 st_write(poverty, "data/clean/poverty.geojson", delete_dsn = TRUE)
