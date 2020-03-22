@@ -89,7 +89,8 @@ here_browse <- function(category, sf, key = here_key, raw = FALSE){
                title = x$title,
                uid = x$id,
                position = x$position,
-               category = category
+               category = category,
+               address = x$address
                )
   })
   
