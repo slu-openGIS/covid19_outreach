@@ -2,6 +2,7 @@
 
 # dependencies
 library(dplyr)
+library(readr)
 library(sf)
 library(stringr)
 library(tidyr)
@@ -136,10 +137,17 @@ poi %>%
 rm(poi)
 
 # tidy tables
-convenience <- select(convenience, -address_full)
-gas <- select(gas, -address_full)
-grocery <- select(grocery, -address_full)
-pharmacy <- select(pharmacy, -address_full)
+convenience <- select(convenience, -address_full) %>%
+  arrange(title)
+
+gas <- select(gas, -address_full) %>%
+  arrange(title)
+
+grocery <- select(grocery, -address_full) %>%
+  arrange(title)
+
+pharmacy <- select(pharmacy, -address_full) %>%
+  arrange(title)
 
 # write data
 st_write(convenience, "data/clean/convenience.geojson", delete_dsn = TRUE)
@@ -147,3 +155,8 @@ st_write(gas, "data/clean/gas.geojson", delete_dsn = TRUE)
 st_write(grocery, "data/clean/grocery.geojson", delete_dsn = TRUE)
 st_write(pharmacy, "data/clean/pharmacy.geojson", delete_dsn = TRUE)
 
+all <- rbind(convenience, gas, grocery, pharmacy)
+st_geometry(all) <- NULL
+all <- arrange(all, title)
+
+write_csv(all, "data/clean/all_locations.csv")
