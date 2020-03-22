@@ -12,7 +12,7 @@ grid <- batch_bbox(stl, 3821, 102696) # 1KM Grid Squares, Using NAD83 Feet
 
 # Specify the HERE Categories you want
 here_categories <- list(
-  fueling_station = '700-7600-0000',
+  fueling_station = '700-7600-0116',
   deli = '100-1000-0006',
   convenience = '600-6000-0061',
   grocery = '600-6300-0066',
