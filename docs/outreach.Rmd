@@ -40,7 +40,7 @@ This interactive report contains demographic data drawn from the 2014-2018 Ameri
   3. Gas Stations not operated by a grocery store chain
   4. Convenience stores not co-located with a gas station
   
-Points of interest data were obtained via [HERE's developer API](https://www.here.com). These data are provided with no warrenty - work has been done to normalize names and remove duplicates, but there may be points of interest that are no longer open, have moved, or have changed names. Overlapping points have been minimized but some do remain due to inconsistencies in how their addresses appeared in HERE's database. Some designations may not be correct - i.e. resturants classified as convenience stores.
+Points of interest data were obtained via [HERE's developer API](https://www.here.com). These data are provided with no warranty - work has been done to normalize names and remove duplicates, but there may be points of interest that are no longer open, have moved, or have changed names. Overlapping points have been minimized but some do remain due to inconsistencies in how their addresses appeared in HERE's database. Some designations may not be correct - i.e. restaurants classified as convenience stores.
 
 Poverty rates are expressed as the number of residents living below the federal poverty line per 1,000 residents in each census tract.
 
