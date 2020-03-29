@@ -1,0 +1,153 @@
+---
+title: "St. Louis City and County Outreach Points"
+author: "Christopher Prener, Ph.D. and Branson Fox"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(here)
+library(leaflet)
+library(sf)
+
+convenience <- st_read(here("data", "clean", "convenience.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE)
+gas <- st_read(here("data", "clean", "gas.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE)
+
+groceryLocal <- st_read(here("data", "clean", "grocery.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE)
+groceryChain <- filter(groceryLocal, category == "Grocery, Chain")
+groceryLocal <- filter(groceryLocal, category == "Grocery, Local")
+
+pharmacyLocal <- st_read(here("data", "clean", "pharmacy.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE)
+pharmacyChain <- filter(pharmacyLocal, category == "Pharmacy, Chain")
+pharmacyLocal <- filter(pharmacyLocal, category == "Pharmacy, Local")
+
+poverty <- st_read(here("data", "clean", "poverty.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE)
+```
+
+<br>
+
+## Background
+This interactive report contains demographic data drawn from the 2014-2018 American Community Survey's 5-year estimates for census tracts overlaid with the locations of four types of points of interest:
+
+  1. Grocery Stores (both chain and local)
+  2. Pharmacies (both chain and local)
+  3. Gas Stations not operated by a grocery store chain
+  4. Convenience stores not co-located with a gas station
+  
+Points of interest data were obtained via [HERE's developer API](https://www.here.com). These data are provided with no warranty - work has been done to normalize names and remove duplicates, but there may be points of interest that are no longer open, have moved, or have changed names. Overlapping points have been minimized but some do remain due to inconsistencies in how their addresses appeared in HERE's database. Some designations may not be correct - i.e. restaurants classified as convenience stores.
+
+Poverty rates are expressed as the number of residents living below the federal poverty line per 1,000 residents in each census tract.
+
+<br>
+
+## Map
+Points of interest are divided into four major categories:
+
+1. **Orange circles** - Convenience Stores ($n = 230$)
+2. **Red circles** - Gas Stations ($n = 448$)
+3. **Green circles** - Grocery Stores ($n = 685$)
+  * **Light green** - local ($n = 468$)
+  * **Dark green** - chain ($n = 217$)
+4. **Purple Circles** - Pharmacies ($n = 192$)
+  * **Light purple** - local ($n = 79$) 
+  * **Dark purple** - chain ($n = 113$) 
+  
+Clicking on a circle will reveal details about the location including the store's name and street address. Zooming in on the map will make it easier to read and will reveal additional street names and detail.
+
+<br>
+
+```{r map, echo = FALSE, out.width = '100%', out.height='800px'}
+# create color palette
+pal <- colorNumeric("Blues", poverty$poverty_rate)
+
+# map 
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldStreetMap) %>%
+  addPolygons(data = poverty,
+    color = "#444444", 
+    weight = 1, 
+    opacity = 1, 
+    smoothFactor = 0.5,
+    fillOpacity = 0.5,
+    fillColor = ~pal(poverty_rate)) %>%
+  addCircleMarkers(data = gas, 
+                   radius = 8,
+                   opacity = 1,
+                   color = "#ff0000",
+                   fillColor = "#ff0000",
+                   popup = paste0("<b>Name</b>: ", gas$title, "<br>",
+                                  "<b>Category</b>: Gas Station <br>",
+                                  "<b>Address:</b><br>",
+                                  gas$address, "<br>",
+                                  gas$address2, "<br>",
+                                  "<b>County</b>: ", gas$county)) %>%
+  addCircleMarkers(data = convenience, 
+                   radius = 8,
+                   opacity = 1,
+                   color = "#ff6500",
+                   fillColor = "#ff6500",
+                   popup = paste0("<b>Name</b>: ", convenience$title, "<br>",
+                                  "<b>Category</b>: Convenience Store <br>",
+                                  "<b>Address:</b><br>",
+                                  convenience$address, "<br>",
+                                  convenience$address2, "<br>",
+                                  "<b>County</b>: ", convenience$county)) %>%
+  addCircleMarkers(data = pharmacyChain, 
+                   radius = 8,
+                   opacity = 1,
+                   color = "#3b0076",
+                   fillColor = "#3b0076",
+                   popup = paste0("<b>Name</b>: ", pharmacyChain$title, "<br>",
+                                  "<b>Category</b>: Pharmacy, Chain <br>",
+                                  "<b>Address:</b><br>",
+                                  pharmacyChain$address, "<br>",
+                                  pharmacyChain$address2, "<br>",
+                                  "<b>County</b>: ", pharmacyChain$county)) %>%
+  addCircleMarkers(data = pharmacyLocal, 
+                   radius = 8,
+                   opacity = 1,
+                   color = "#8000ff",
+                   fillColor = "#8000ff",
+                   popup = paste0("<b>Name</b>: ", pharmacyLocal$title, "<br>",
+                                  "<b>Category</b>: Pharmacy, Local <br>",
+                                  "<b>Address:</b><br>",
+                                  pharmacyLocal$address, "<br>",
+                                  pharmacyLocal$address2, "<br>",
+                                  "<b>County</b>: ", pharmacyLocal$county)) %>%
+  addCircleMarkers(data = groceryChain, 
+                   radius = 8,
+                   opacity = 1,
+                   color = "#006700",
+                   fillColor = "#006700",
+                   popup = paste0("<b>Name</b>: ", groceryChain$title, "<br>",
+                                  "<b>Category</b>: Grocery, Chain <br>",
+                                  "<b>Address:</b><br>",
+                                  groceryChain$address, "<br>",
+                                  groceryChain$address2, "<br>",
+                                  "<b>County</b>: ", groceryChain$county)) %>%
+  addCircleMarkers(data = groceryLocal, 
+                   radius = 8,
+                   opacity = 1,
+                   color = "#57b000",
+                   fillColor = "#57b000",
+                   popup = paste0("<b>Name</b>: ", groceryLocal$title, "<br>",
+                                  "<b>Category</b>: Grocery, Local <br>",
+                                  "<b>Address:</b><br>",
+                                  groceryLocal$address, "<br>",
+                                  groceryLocal$address2, "<br>",
+                                  "<b>County</b>: ", groceryLocal$county)) %>%
+  addLegend(data = poverty, pal = pal, values = ~poverty_rate, opacity = .5, title = "Poverty Rate")
+```
+
+<br>
+
+## Acknowledgements
+Branson Fox, a Saint Louis University undergraduate student, wrote and executed the initial scripts for scraping bulk location data from HERE.
+
+<br>
