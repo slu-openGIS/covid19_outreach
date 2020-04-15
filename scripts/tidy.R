@@ -10,6 +10,9 @@ library(tidyr)
 # load data
 load("data/POI.rda")
 
+# clean-up
+rm(check_cashing_sf, hair_beauty_sf, liquor_store_sf)
+
 # bind and subset to only include city and county
 poi <- rbind(convenience_sf, drug_store_sf, fueling_station_sf, grocery_sf) %>%
   filter(address.county %in% c("St Louis (City)", "St Louis"))

@@ -1,0 +1,128 @@
+---
+title: "St. Louis City and County Outreach Points, Round 2"
+author: "Christopher Prener, Ph.D. and Branson Fox"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# load dependencies
+library(dplyr)
+library(here)
+library(leaflet)
+library(sf)
+
+# load data
+beauty <- st_read(here("data", "clean", "beauty.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE)
+                       
+liquor <- st_read(here("data", "clean", "liquor.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE)
+
+payday <- st_read(here("data", "clean", "payday.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE)
+                       
+parks <- st_read(here("data", "clean", "parks_city.geojson"), crs = 4326, 
+                       stringsAsFactors = FALSE)
+
+zips <- st_read(here("data", "zips.geojson"), crs = 4326,
+                   stringsAsFactors = FALSE)
+
+# subset to priority zips
+zips <- filter(zips, as.numeric(GEOID10) %in% c(63106, 63107, 63113, 63115, 63136, 
+                                                63112, 63120, 63103, 63108, 
+                                                63147, 63110, 63102, 63101, 
+                                                63133, 63130))
+```
+
+<br>
+
+## Background
+This interactive report contains the locations of four types of points of interest:
+
+  1. Health and Beauty Businesses
+  2. Liquor Stores
+  3. Parks (City of St. Louis only)
+  4. Payday Loan and Check Cashing Businesses
+  
+Non-park points of interest data were obtained via [HERE's developer API](https://www.here.com). These data are provided with no warranty - work has been done to normalize names and remove duplicates, but there may be points of interest that are no longer open, have moved, or have changed names. 
+
+The nature of duplicates with these data are different than in the previous reports - some addresses have multiple distinct businesses in one or more of the categories of interest. These data have therefore been "jittered" - random noise has been added to the latitude and longitude positions when multiple points of interest exist at the same pair of coordinates. Map locations for addresses with multiple businesses should therefore be treated as approximate.
+
+Parks have been obtained from the City of St. Louis. However, data were not available for parks outside of the City.
+
+These data are overlaid on the boundaries that correspond roughly to the requested zip-codes. The U.S. Postal Service does not published geometric data related to zip-codes, because they are not areas but rather line-routes that are constantly changing. As a proxy for the areas roughly covered by routes, the map below uses the U.S. Census Bureau's Zip Code Tabulation Areas (ZCTA):
+
+<br>
+
+```{r map-zips, echo = FALSE, out.width = '100%', out.height='800px'}
+mapview::mapview(zips)
+```
+
+<br>
+
+## Map
+Points of interest are divided into four major categories:
+
+1. **Orange circles** - Health and Beauty Businesses ($n = 357$)
+2. **Red circles** - Liquor Stores ($n = 63$)
+4. **Green polygons** - City Parks ($n = 69$)
+4. **Purple circles** - Payday Loan and Check Cashing Businesses ($n = 31$)
+
+Zip-code boundaries are marked in black.
+
+<br>
+
+```{r map, echo = FALSE, out.width = '100%', out.height='800px'}
+# map 
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldStreetMap) %>%
+  addPolygons(data = zips,
+              color = "#000000",
+              opacity = 1,
+              fillColor = "transparent") %>%
+  addPolygons(data = parks,
+              color = "#006700",
+              fillColor = "#006700",
+              popup = paste0("<b>Name</b>: ", parks$name)) %>%
+  addCircleMarkers(data = liquor, 
+                   radius = 8,
+                   opacity = 1,
+                   color = "#ff0000",
+                   fillColor = "#ff0000",
+                   popup = paste0("<b>Name</b>: ", liquor$title, "<br>",
+                                  "<b>Category</b>: Liquor Store <br>",
+                                  "<b>Address:</b><br>",
+                                  liquor$address, "<br>",
+                                  liquor$address2, "<br>",
+                                  "<b>County</b>: ", liquor$county)) %>%
+  addCircleMarkers(data = beauty, 
+                   radius = 8,
+                   opacity = 1,
+                   color = "#ff6500",
+                   fillColor = "#ff6500",
+                   popup = paste0("<b>Name</b>: ", beauty$title, "<br>",
+                                  "<b>Category</b>: Health and Beauty <br>",
+                                  "<b>Address:</b><br>",
+                                  beauty$address, "<br>",
+                                  beauty$address2, "<br>",
+                                  "<b>County</b>: ", beauty$county)) %>%
+  addCircleMarkers(data = payday, 
+                   radius = 8,
+                   opacity = 1,
+                   color = "#3b0076",
+                   fillColor = "#3b0076",
+                   popup = paste0("<b>Name</b>: ", payday$title, "<br>",
+                                  "<b>Category</b>: Payday Loan and Check Cashing <br>",
+                                  "<b>Address:</b><br>",
+                                  payday$address, "<br>",
+                                  payday$address2, "<br>",
+                                  "<b>County</b>: ", payday$county))
+```
+
+<br>
+
+## Acknowledgements
+Branson Fox, a Saint Louis University undergraduate student, wrote and executed the initial scripts for scraping bulk location data from HERE.
+
+<br>
