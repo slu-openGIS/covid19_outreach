@@ -19,7 +19,8 @@ here_categories <- list(
   drug_store = '600-6400-0000',
   liquor_store = '600-6300-0068',
   check_cashing = '700-7050-0110',
-  hair_beauty = '600-6900-0104'
+  hair_beauty = '600-6900-0104',
+  laundromat = '700-7400-0137'
 )
 
 ###########
@@ -60,4 +61,4 @@ for (i in names(here_categories)){
     scrape_here(here_categories[[i]], grid)
   )
 }
-save(fueling_station_sf, deli_sf, convenience_sf, grocery_sf, drug_store_sf, liquor_store_sf, check_cashing_sf, hair_beauty_sf, file = 'data/POI.rda')
+save(fueling_station_sf, deli_sf, convenience_sf, grocery_sf, drug_store_sf, liquor_store_sf, check_cashing_sf, hair_beauty_sf, laundromat_sf, file = 'data/POI.rda')
