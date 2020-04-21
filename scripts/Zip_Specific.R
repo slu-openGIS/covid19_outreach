@@ -79,6 +79,6 @@ save(fueling_station_sf_zip, deli_sf_zip, convenience_sf_zip, grocery_sf_zip, dr
 #############################
 
 # Get Public Housing Data
-pub_housing <- st_read("https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/OZ_PUBLIC_HOUSING_DEVELOPMENTS/FeatureServer/0/query?where=STD_ST%3D'MO'&outFields=*&outSR=4326&f=geojson")
+pub_housing <- st_read("https://services.arcgis.com/VTyQ9soqVukalItT/arcgis/rest/services/OZ_PUBLIC_HOUSING_DEVELOPMENTS/FeatureServer/0/query?where=STD_ST+IN+%28%27MO%27%2C%27IL%27%29&outFields=*&outSR=4326&f=geojson")
 
-save(pub_housing, file = 'data/MO_public_housing.rda')
+save(pub_housing, file = 'data/MOIL_public_housing.rda')
