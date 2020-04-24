@@ -31,7 +31,9 @@ here_categories <- list(
   liquor_store = '600-6300-0068',
   check_cashing = '700-7050-0110',
   #hair_beauty = '600-6900-0104', # Does Not Exist in Zips
-  laundromat = '700-7400-0137'
+  laundromat = '700-7400-0137',
+  kindergarten_childcare = '700-7400-0286',
+  auto_parts = '700-7850-0123'
 )
 
 ###########
@@ -72,7 +74,7 @@ for (i in names(here_categories)){
     scrape_here(here_categories[[i]], grid)
   )
 }
-save(fueling_station_sf_zip, deli_sf_zip, convenience_sf_zip, grocery_sf_zip, drug_store_sf_zip, liquor_store_sf_zip, check_cashing_sf_zip, laundromat_sf_zip, file = 'data/ZIP_Specific.rda')
+save(fueling_station_sf_zip, deli_sf_zip, convenience_sf_zip, grocery_sf_zip, drug_store_sf_zip, liquor_store_sf_zip, check_cashing_sf_zip, laundromat_sf_zip, kindergarten_childcare_sf_zip, auto_parts_sf_zip, file = 'data/ZIP_Specific.rda')
 
 #############################
 ## Raw Public Housing Data ##
