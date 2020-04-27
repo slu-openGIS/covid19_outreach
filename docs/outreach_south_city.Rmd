@@ -1,0 +1,164 @@
+---
+title: "South St. Louis City Outreach"
+author: "Christopher Prener, Ph.D. and Branson Fox"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# load dependencies
+library(dplyr)
+library(here)
+library(leaflet)
+library(RColorBrewer)
+library(readr)
+library(sf)
+
+# define focal zips
+focal_zips <- c(63116, 63118, 63104)
+
+# load data
+auto <- st_read(here("data", "clean2", "auto_parts.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE) %>%
+  filter(zip %in% focal_zips)
+
+beauty <- st_read(here("data", "clean2", "hair_and_beauty.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE) %>%
+  filter(zip %in% focal_zips)
+
+laundry <- st_read(here("data", "clean2", "laundromats.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE) %>%
+  filter(zip %in% focal_zips)
+                       
+liquor <- st_read(here("data", "clean2", "liquor_store.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE) %>%
+  filter(zip %in% focal_zips)
+
+payday <- st_read(here("data", "clean2", "payday_loan.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE) %>%
+  filter(zip %in% focal_zips)
+                       
+zips <- st_read(here("data", "zips.geojson"), crs = 4326,
+                   stringsAsFactors = FALSE) %>%
+  mutate(GEOID10 = as.numeric(GEOID10)) %>%
+  filter(GEOID10 %in% focal_zips)
+
+# create palette
+pal <- brewer.pal(n = 5, name = "Set1")
+
+# clean-up
+rm(focal_zips)
+
+# create spreadsheet output
+full <- rbind(auto, beauty, laundry, liquor, payday)
+st_geometry(full) <- NULL
+write_csv(full, "outreach_south_city.csv")
+```
+
+## Background
+This interactive report contains the locations of five types of points of interest:
+
+  1. Auto Parts
+  2. Health and Beauty Businesses
+  3. Laundromats
+  4. Liquor Stores
+  5. Payday Loan and Check Cashing Businesses
+  
+Points of interest data were obtained via [HERE's developer API](https://www.here.com). These data are provided with no warranty - work has been done to normalize names and remove duplicates, but there may be points of interest that are no longer open, have moved, or have changed names. Locations may also have been incorrectly geocoded by HERE (note the three locations along I-64, for example).
+
+Some addresses have multiple distinct businesses in one or more of the categories of interest. These data have therefore been "jittered" - random noise has been added to the latitude and longitude positions when multiple points of interest exist at the same pair of coordinates. Map locations for addresses with multiple businesses should therefore be treated as approximate.
+
+These data are overlaid on the boundaries that correspond roughly to the requested zip-codes. The U.S. Postal Service does not published geometric data related to zip-codes, because they are not areas but rather line-routes that are constantly changing. As a proxy for the areas roughly covered by routes, the map below uses the U.S. Census Bureau's Zip Code Tabulation Areas (ZCTA):
+
+<br>
+
+```{r map-zips, echo = FALSE, out.width = '100%', out.height='800px'}
+mapview::mapview(zips, zcol = "GEOID10")
+```
+
+<br>
+
+## Map
+Points of interest are divided into five major categories:
+
+1. **Red circles** - Auto Parts Stores (n = `r nrow(auto)`)
+2. **Blue circles** - Health and Beauty Businesses (n = `r nrow(beauty)`)
+3. **Green circles** - Laundromats (n = `r nrow(laundry)`)
+4. **Purple circles** - Liquor Stores (n = `r nrow(liquor)`)
+5. **Orange circles** - Payday Loan and Check Cashing Businesses (n = `r nrow(payday)`)
+
+Zip-code boundaries are marked in black.
+
+<br>
+
+```{r map, echo = FALSE, out.width = '100%', out.height='800px'}
+# map 
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldStreetMap) %>%
+  addPolygons(data = zips,
+              color = "#000000",
+              opacity = 1,
+              fillColor = "transparent") %>%
+  addCircleMarkers(data = auto, 
+                   radius = 8,
+                   opacity = 1,
+                   color = pal[1],
+                   fillColor = pal[1],
+                   popup = paste0("<b>Name</b>: ", auto$title, "<br>",
+                                  "<b>Category</b>: Auto Parts <br>",
+                                  "<b>Address:</b><br>",
+                                  auto$address, "<br>",
+                                  auto$address2, "<br>",
+                                  "<b>County</b>: ", auto$county)) %>%
+  addCircleMarkers(data = beauty, 
+                 radius = 8,
+                 opacity = 1,
+                 color = pal[2],
+                 fillColor = pal[2],
+                 popup = paste0("<b>Name</b>: ", beauty$title, "<br>",
+                                "<b>Category</b>: Health and Beauty <br>",
+                                "<b>Address:</b><br>",
+                                beauty$address, "<br>",
+                                beauty$address2, "<br>",
+                                "<b>County</b>: ", beauty$county)) %>%
+  addCircleMarkers(data = laundry, 
+                   radius = 8,
+                   opacity = 1,
+                   color = pal[3],
+                   fillColor = pal[3],
+                   popup = paste0("<b>Name</b>: ", laundry$title, "<br>",
+                                  "<b>Category</b>: Laundromat <br>",
+                                  "<b>Address:</b><br>",
+                                  laundry$address, "<br>",
+                                  laundry$address2, "<br>",
+                                  "<b>County</b>: ", laundry$county)) %>%
+  addCircleMarkers(data = liquor, 
+                 radius = 8,
+                 opacity = 1,
+                 color = pal[4],
+                 fillColor = pal[4],
+                 popup = paste0("<b>Name</b>: ", liquor$title, "<br>",
+                                "<b>Category</b>: Liquor Store <br>",
+                                "<b>Address:</b><br>",
+                                liquor$address, "<br>",
+                                liquor$address2, "<br>",
+                                "<b>County</b>: ", liquor$county)) %>%
+  addCircleMarkers(data = payday, 
+                   radius = 8,
+                   opacity = 1,
+                   color = pal[5],
+                   fillColor = pal[5],
+                   popup = paste0("<b>Name</b>: ", payday$title, "<br>",
+                                  "<b>Category</b>: Payday Loan and Check Cashing <br>",
+                                  "<b>Address:</b><br>",
+                                  payday$address, "<br>",
+                                  payday$address2, "<br>",
+                                  "<b>County</b>: ", payday$county))
+```
+
+<br>
+
+## Acknowledgements
+Branson Fox, a Saint Louis University undergraduate student, wrote and executed the initial scripts for scraping bulk location data from HERE.
+
+<br>

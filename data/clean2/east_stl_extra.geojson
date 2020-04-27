@@ -1,0 +1,12 @@
+{
+"type": "FeatureCollection",
+"name": "east_stl_extra",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "title": "Gas Station", "category": "Miscellaneous", "county": "St. Clair", "address": "306 Riverpark Drive", "address2": "East St. Louis IL, 62201", "zip": 62201.0, "address_full": "306 Riverpark Drive, East St. Louis IL, 62201" }, "geometry": { "type": "Point", "coordinates": [ -90.167915, 38.62813 ] } },
+{ "type": "Feature", "properties": { "title": "Food Lovers Grill", "category": "Miscellaneous", "county": "St. Clair", "address": "515 Martin Luther King Drive", "address2": "East St. Louis IL, 62201", "zip": 62201.0, "address_full": "515 Martin Luther King Drive, East St. Louis IL, 62201" }, "geometry": { "type": "Point", "coordinates": [ -90.15479, 38.62813 ] } },
+{ "type": "Feature", "properties": { "title": "McDonalds", "category": "Miscellaneous", "county": "St. Clair", "address": "588 N 24th St", "address2": "East St. Louis IL, 62205", "zip": 62205.0, "address_full": "588 N 24th St, East St. Louis IL, 62205" }, "geometry": { "type": "Point", "coordinates": [ -90.12852, 38.616207 ] } },
+{ "type": "Feature", "properties": { "title": "Church's Chicken", "category": "Miscellaneous", "county": "St. Clair", "address": "5520 Caseyville Ave", "address2": "Washington Park IL, 62204", "zip": 62204.0, "address_full": "5520 Caseyville Ave, Washington Park IL, 62204" }, "geometry": { "type": "Point", "coordinates": [ -90.09183, 38.630306 ] } },
+{ "type": "Feature", "properties": { "title": "Griffin Homes", "category": "Miscellaneous", "county": "St. Clair", "address": "2500 Lincoln Ave", "address2": "East St. Louis IL, 62204", "zip": 62204.0, "address_full": "2500 Lincoln Ave, East St. Louis IL, 62204" }, "geometry": { "type": "Point", "coordinates": [ -90.12127, 38.634308 ] } }
+]
+}

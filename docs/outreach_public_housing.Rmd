@@ -1,0 +1,76 @@
+---
+title: "Public Housing Outreach"
+author: "Christopher Prener, Ph.D. and Branson Fox"
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# load dependencies
+library(dplyr)
+library(here)
+library(leaflet)
+library(RColorBrewer)
+library(readr)
+library(sf)
+library(tigris)
+
+# load data
+housing <- st_read(here("data", "clean2", "public_housing.geojson"), crs = 4326,
+                       stringsAsFactors = FALSE) %>%
+  filter(county %in% c("St. Louis", "City of St. Louis"))
+                       
+counties <- counties(state = 29, class = "sf") %>%
+  select(GEOID) %>%
+  filter(GEOID %in% c("29189", "29510")) %>%
+  st_transform(crs = 4326)
+
+# create palette
+pal <- brewer.pal(n = 1, name = "Set1")
+
+# clean-up
+# rm(focal_zips)
+
+# create spreadsheet output
+full <- housing
+st_geometry(full) <- NULL
+write_csv(full, "outreach_public_housing.csv")
+```
+
+## Background
+This interactive report contains the locations of public housing complexes in St. Louis City and County. These data were obtained from HUD and are provided with no warranty. There may be missing data, and locations may also have been incorrectly geocoded by HUD. Clicking on a complex will reveal details, including the number of units on file with HUD.
+
+## Map
+Public housing complexes are labeled with **red circles** (n = `r nrow(housing)`). County boundaries are marked in black.
+
+<br>
+
+```{r map, echo = FALSE, out.width = '100%', out.height='800px'}
+# map 
+leaflet() %>%
+  addProviderTiles(providers$Esri.WorldStreetMap) %>%
+  addPolygons(data = counties,
+              color = "#000000",
+              opacity = 1,
+              fillColor = "transparent") %>%
+  addCircleMarkers(data = housing, 
+                   radius = 8,
+                   opacity = 1,
+                   color = pal[1],
+                   fillColor = pal[1],
+                   popup = paste0("<b>Name</b>: ", housing$title, "<br>",
+                                  "<b>Category</b>: Public Housing <br>",
+                                  "<b>Authority</b>: ", housing$authority, "<br>",
+                                  "<b>Units</b>: ", housing$units, "<br>",
+                                  "<b>Address:</b><br>",
+                                  housing$address, "<br>",
+                                  housing$address2, "<br>",
+                                  "<b>County</b>: ", housing$county))
+```
+
+<br>
+
+## Acknowledgements
+Branson Fox, a Saint Louis University undergraduate student, wrote and executed the initial scripts for scraping bulk location data from HUD.
+
+<br>
